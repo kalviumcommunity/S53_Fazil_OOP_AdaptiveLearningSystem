@@ -117,7 +117,7 @@ public:
         shuffle(questionPool.begin(), questionPool.end(), g); // Shuffle questions
 
         // Select the first 10 questions and their correct answers
-        for (size_t i = 0; i < 10 && i < questionPool.size(); ++i)
+        for (size_t i = 0; i < 5 && i < questionPool.size(); ++i)
         {
             questions.push_back(questionPool[i].first);
             correctAnswers.push_back(questionPool[i].second);
