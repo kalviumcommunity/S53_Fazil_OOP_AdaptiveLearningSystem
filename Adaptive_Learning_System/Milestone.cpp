@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+
 using namespace std;
 
 // Class representing a Student
@@ -7,74 +9,101 @@ class Student
 private:
     string name;
     int age;
+    string learningStyle;
+    string initialLearningPath;
 
 public:
     // Constructor
-    Student(string studentName, int studentAge)
-        : name(studentName), age(studentAge) {}
-
-    // Setter for student name
-    void setName(string studentName)
+    Student(string studentName, int studentAge, string studentLearningStyle)
+        : name(studentName), age(studentAge), learningStyle(studentLearningStyle), initialLearningPath("Basic Math, Basic Geography, Introduction to Science")
     {
-        name = studentName;
     }
 
-    // Getter for student name
-    string getName()
+    // Setters using 'this' pointer
+    Student &setName(string studentName)
     {
-        return name;
+        this->name = studentName; // Using 'this' pointer to access the current object's member
+        return *this;             // Return *this to enable method chaining
     }
 
-    // Setter for student age
-    void setAge(int studentAge)
+    Student &setAge(int studentAge)
     {
-        age = studentAge;
+        this->age = studentAge; // Using 'this' pointer
+        return *this;
     }
 
-    // Getter for student age
-    int getAge()
+    Student &setLearningStyle(string studentLearningStyle)
     {
-        return age;
+        this->learningStyle = studentLearningStyle; // Using 'this' pointer
+        return *this;
     }
 
-    // Display student info
-    void displayInfo()
+    // Getters
+    string getName() const { return name; }
+    int getAge() const { return age; }
+    string getLearningStyle() const { return learningStyle; }
+    string getInitialLearningPath() const { return initialLearningPath; }
+
+    // Display Student Information
+    void displayStudentInfo() const
     {
         cout << "Student Name: " << name << endl;
         cout << "Age: " << age << endl;
+        cout << "Learning Style: " << learningStyle << endl;
+        cout << "Initial Learning Path: " << initialLearningPath << endl;
     }
 };
 
-// Class for providing Feedback
-class Feedback
+// Class for managing Learning Paths
+class LearningPath
 {
+private:
+    string path;
+
 public:
-    // Provide feedback based on age
-    void provideFeedback(int age)
+    // Constructor
+    LearningPath(string initialPath) : path(initialPath) {}
+
+    // Setter using 'this' pointer
+    LearningPath &updateLearningPath(string newPath)
     {
-        if (age < 18)
-        {
-            cout << "You are a young learner. Keep up the good work!" << endl;
-        }
-        else
-        {
-            cout << "Great effort! Continue learning and growing." << endl;
-        }
+        this->path = newPath; // Using 'this' pointer to update learning path
+        return *this;         // Return *this for method chaining
+    }
+
+    // Getter
+    string getLearningPath() const { return path; }
+
+    // Display Learning Path
+    void displayLearningPath() const
+    {
+        cout << "Learning Path: " << path << endl;
     }
 };
 
 // Main function
 int main()
 {
-    // Creating a student object
-    Student student("John Doe", 15);
+    // Create a student profile
+    Student student("John Doe", 15, "Visual");
 
-    // Display student information
-    student.displayInfo();
+    // Display initial student info
+    student.displayStudentInfo();
+    cout << endl;
 
-    // Providing feedback based on age
-    Feedback feedback;
-    feedback.provideFeedback(student.getAge());
+    // Update student details using method chaining with 'this' pointer
+    student.setName("Jane Doe").setAge(16).setLearningStyle("Kinesthetic");
+
+    // Display updated student info
+    cout << "\nUpdated Student Info:\n";
+    student.displayStudentInfo();
+    cout << endl;
+
+    // Create a learning path object
+    LearningPath learningPath("Basic Math, Basic Geography, Introduction to Science");
+
+    // Update the learning path using 'this' pointer and display it
+    learningPath.updateLearningPath("Intermediate Math, World Geography, Introduction to Physics").displayLearningPath();
 
     return 0;
 }
