@@ -3,7 +3,6 @@
 #include <string>
 #include <algorithm>
 #include <random>
-#include <algorithm>
 #include <chrono>
 
 using namespace std;
@@ -269,7 +268,7 @@ int main()
         cout << "\n-----------------------------------\n";
     }
 
-    // Display total students and total quiz scores
+    // Display total students and total quiz scores using static member functions
     cout << "\nTotal students: " << Student::getTotalStudents() << endl;
     cout << "Total quiz scores of all students: " << Student::getTotalQuizScores() << endl;
 
