@@ -2,11 +2,12 @@
 #include <vector>
 #include <string>
 #include <algorithm>
-#include <random> // For random number generation
+#include <random>
+#include <algorithm>
+#include <chrono>
 
 using namespace std;
 
-// Utility function to convert a string to lowercase
 string toLowerCase(const string &str)
 {
     string lowerStr = str;
@@ -25,20 +26,17 @@ private:
     string initialLearningPath;
 
 public:
-    // Constructor
     Student(string studentName, int studentAge, string studentLearningStyle)
         : name(studentName), age(studentAge), learningStyle(studentLearningStyle), initialLearningPath("Basic Math, Basic Geography, Introduction to Science")
     {
     }
 
-    // Setter using 'this' pointer
     Student &setName(string studentName)
     {
         this->name = studentName;
-        return *this; // For method chaining
+        return *this;
     }
 
-    // Another setter using 'this' pointer
     Student &setAge(int studentAge)
     {
         this->age = studentAge;
@@ -77,7 +75,6 @@ public:
     virtual int evaluateAnswers() = 0;
 };
 
-// Derived class for MultipleChoiceQuiz
 class MultipleChoiceQuiz : public Quiz
 {
 private:
@@ -87,7 +84,6 @@ private:
 public:
     void generateQuestions() override
     {
-        // Larger pool of questions and answers
         vector<pair<string, string>> questionPool = {
             {"What is the capital of France?", "paris"},
             {"What is 2 + 2?", "4"},
@@ -112,8 +108,8 @@ public:
             {"Which element has the chemical symbol 'O'?", "oxygen"}};
 
         // Shuffle the question pool
-        random_device rd;                                     // Random number generator
-        mt19937 g(rd());                                      // Mersenne Twister engine
+        unsigned seed = chrono::system_clock::now().time_since_epoch().count(); // Use current time as seed
+        mt19937 g(seed);
         shuffle(questionPool.begin(), questionPool.end(), g); // Shuffle questions
 
         // Select the first 10 questions and their correct answers
@@ -201,47 +197,55 @@ public:
     }
 };
 
-// Main function to run the simulation with array of objects
 int main()
 {
-    // Creating an array of Student objects
-    Student students[3] = {
-        Student("John Doe", 15, "Visual"),
-        Student("Jane Doe", 16, "Auditory"),
-        Student("Alice Smith", 14, "Kinesthetic")};
+    // Creating dynamic array of Student objects using 'new'
+    Student *students[3];
+    students[0] = new Student("John Doe", 15, "Visual");
+    students[1] = new Student("Jane Doe", 16, "Auditory");
+    students[2] = new Student("Alice Smith", 14, "Kinesthetic");
 
-    // Introduce the students
-    for (Student &student : students)
+    for (int i = 0; i < 3; ++i)
     {
-        cout << "\nHi, I'm " << student.getName() << ", a " << student.getAge()
-             << "-year-old student who prefers " << student.getLearningStyle() << " learning." << endl;
-        cout << "My initial learning path is: " << student.getInitialLearningPath() << endl;
+        cout << "\nHi, I'm " << students[i]->getName() << ", a " << students[i]->getAge()
+             << "-year-old student who prefers " << students[i]->getLearningStyle() << " learning." << endl;
+        cout << "My initial learning path is: " << students[i]->getInitialLearningPath() << endl;
 
-        cout << endl; // Leaving a line gap
+        cout << endl;
     }
 
-    // Generate and evaluate a quiz for each student
-    MultipleChoiceQuiz quiz;
-    quiz.generateQuestions();
-
-    for (Student &student : students)
+    // Iterate over each student and generate quiz questions for each student
+    for (int i = 0; i < 3; ++i)
     {
-        cout << "\n-----------------------------------\n";
-        cout << "Evaluating quiz for " << student.getName() << ":\n";
-        int score = quiz.evaluateAnswers();
-        student.addQuizScore(score);
-
-        // Generate and display learning path
-        LearningPath learningPath;
-        learningPath.generateLearningPath(student.getAverageScore());
-        learningPath.displayLearningPath();
-
-        // Provide feedback
-        Feedback feedback;
-        feedback.provideFeedback(student.getAverageScore());
+        // Dynamically allocate quiz object and generate new set of questions
+        MultipleChoiceQuiz *quiz = new MultipleChoiceQuiz();
+        quiz->generateQuestions(); // Generate different questions for each student
 
         cout << "\n-----------------------------------\n";
+        cout << "Evaluating quiz for " << students[i]->getName() << ":\n";
+        int score = quiz->evaluateAnswers();
+        students[i]->addQuizScore(score);
+
+        LearningPath *learningPath = new LearningPath();
+        learningPath->generateLearningPath(students[i]->getAverageScore());
+        learningPath->displayLearningPath();
+
+        Feedback *feedback = new Feedback();
+        feedback->provideFeedback(students[i]->getAverageScore());
+
+        delete learningPath;
+        delete feedback;
+        delete quiz;
+
+        cout << "\n-----------------------------------\n";
+    }
+
+    // Clean up dynamic memory for students
+    for (int i = 0; i < 3; ++i)
+    {
+        delete students[i];
     }
 
     return 0;
 }
+
