@@ -25,10 +25,20 @@ private:
     vector<int> quizScores;
     string initialLearningPath;
 
+    // Static variables to track the total number of students and total quiz scores
+    static int totalStudents;
+    static int totalQuizScores;
+
 public:
     Student(string studentName, int studentAge, string studentLearningStyle)
         : name(studentName), age(studentAge), learningStyle(studentLearningStyle), initialLearningPath("Basic Math, Basic Geography, Introduction to Science")
     {
+        totalStudents++;  // Increment total students
+    }
+
+    ~Student()
+    {
+        totalStudents--;  // Decrement total students when a student object is deleted
     }
 
     Student &setName(string studentName)
@@ -44,7 +54,12 @@ public:
     }
 
     void setLearningStyle(string studentLearningStyle) { learningStyle = studentLearningStyle; }
-    void addQuizScore(int score) { quizScores.push_back(score); }
+    
+    void addQuizScore(int score)
+    {
+        quizScores.push_back(score);
+        totalQuizScores += score;  // Add score to total quiz scores
+    }
 
     // Getters
     string getName() const { return name; }
@@ -65,7 +80,23 @@ public:
         }
         return static_cast<float>(sum) / quizScores.size();
     }
+
+    // Static function to return total number of students
+    static int getTotalStudents()
+    {
+        return totalStudents;
+    }
+
+    // Static function to return the total quiz scores of all students
+    static int getTotalQuizScores()
+    {
+        return totalQuizScores;
+    }
 };
+
+// Initialize static variables
+int Student::totalStudents = 0;
+int Student::totalQuizScores = 0;
 
 // Base class for Quiz
 class Quiz
@@ -210,8 +241,6 @@ int main()
         cout << "\nHi, I'm " << students[i]->getName() << ", a " << students[i]->getAge()
              << "-year-old student who prefers " << students[i]->getLearningStyle() << " learning." << endl;
         cout << "My initial learning path is: " << students[i]->getInitialLearningPath() << endl;
-
-        cout << endl;
     }
 
     // Iterate over each student and generate quiz questions for each student
@@ -240,6 +269,10 @@ int main()
         cout << "\n-----------------------------------\n";
     }
 
+    // Display total students and total quiz scores
+    cout << "\nTotal students: " << Student::getTotalStudents() << endl;
+    cout << "Total quiz scores of all students: " << Student::getTotalQuizScores() << endl;
+
     // Clean up dynamic memory for students
     for (int i = 0; i < 3; ++i)
     {
@@ -248,4 +281,3 @@ int main()
 
     return 0;
 }
-
