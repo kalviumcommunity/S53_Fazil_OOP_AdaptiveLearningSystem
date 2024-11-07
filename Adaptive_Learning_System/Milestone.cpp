@@ -7,12 +7,44 @@
 
 using namespace std;
 
+// Function to convert a string to lowercase for case-insensitive comparison
 string toLowerCase(const string &str)
 {
     string lowerStr = str;
     transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
     return lowerStr;
 }
+
+// Class representing a Course
+class Course
+{
+private:
+    string courseName;
+    int courseDuration; // Duration in weeks
+    string courseLevel;
+
+public:
+    // Constructor
+    Course(string name, int duration, string level)
+        : courseName(name), courseDuration(duration), courseLevel(level) {}
+
+    // Getters
+    string getCourseName() const { return courseName; }
+    int getCourseDuration() const { return courseDuration; }
+    string getCourseLevel() const { return courseLevel; }
+
+    // Setters
+    void setCourseName(const string &name) { courseName = name; }
+    void setCourseDuration(int duration) { courseDuration = duration; }
+    void setCourseLevel(const string &level) { courseLevel = level; }
+
+    // Display course details
+    void displayCourseDetails() const
+    {
+        cout << "Course: " << courseName << ", Duration: " << courseDuration
+             << " weeks, Level: " << courseLevel << endl;
+    }
+};
 
 // Class representing a Student
 class Student
@@ -22,50 +54,49 @@ private:
     int age;
     string learningStyle;
     vector<int> quizScores;
-    string initialLearningPath;
+    vector<Course *> enrolledCourses; // Vector of pointers to Course
 
     // Static variables to track the total number of students and total quiz scores
     static int totalStudents;
     static int totalQuizScores;
 
 public:
+    Student() : age(0) {} // Default constructor
+
     Student(string studentName, int studentAge, string studentLearningStyle)
-        : name(studentName), age(studentAge), learningStyle(studentLearningStyle), initialLearningPath("Basic Math, Basic Geography, Introduction to Science")
     {
-        totalStudents++;  // Increment total students
+        setName(studentName);
+        setAge(studentAge);
+        setLearningStyle(studentLearningStyle);
+        totalStudents++; // Increment total students
     }
 
-    ~Student()
-    {
-        totalStudents--;  // Decrement total students when a student object is deleted
-    }
-
-    Student &setName(string studentName)
-    {
-        this->name = studentName;
-        return *this;
-    }
-
-    Student &setAge(int studentAge)
-    {
-        this->age = studentAge;
-        return *this;
-    }
-
-    void setLearningStyle(string studentLearningStyle) { learningStyle = studentLearningStyle; }
-    
-    void addQuizScore(int score)
+    // Add quiz score and update total quiz scores
+    Student &addQuizScore(int score)
     {
         quizScores.push_back(score);
-        totalQuizScores += score;  // Add score to total quiz scores
+        totalQuizScores += score;
+        return *this;
     }
 
-    // Getters
+    // Enroll in a course (using pointers)
+    Student &enrollInCourse(Course *course)
+    {
+        enrolledCourses.push_back(course);
+        return *this;
+    }
+
+    // Getters (Accessors)
     string getName() const { return name; }
     int getAge() const { return age; }
     string getLearningStyle() const { return learningStyle; }
     vector<int> getQuizScores() const { return quizScores; }
-    string getInitialLearningPath() const { return initialLearningPath; }
+    vector<Course *> getEnrolledCourses() const { return enrolledCourses; }
+
+    // Setters
+    void setName(const string &studentName) { name = studentName; }
+    void setAge(int studentAge) { age = studentAge; }
+    void setLearningStyle(const string &studentLearningStyle) { learningStyle = studentLearningStyle; }
 
     // Calculate average score
     float getAverageScore() const
@@ -80,39 +111,44 @@ public:
         return static_cast<float>(sum) / quizScores.size();
     }
 
-    // Static function to return total number of students
-    static int getTotalStudents()
+    // Display enrolled courses
+    void displayEnrolledCourses() const
     {
-        return totalStudents;
+        cout << "\nEnrolled Courses:" << endl;
+        if (enrolledCourses.empty())
+        {
+            cout << "No courses enrolled yet." << endl;
+        }
+        else
+        {
+            for (const Course *course : enrolledCourses)
+            {
+                course->displayCourseDetails();
+            }
+        }
     }
 
-    // Static function to return the total quiz scores of all students
-    static int getTotalQuizScores()
-    {
-        return totalQuizScores;
-    }
+    // Static function to return total number of students
+    static int getTotalStudents() { return totalStudents; }
+    static int getTotalQuizScores() { return totalQuizScores; }
 };
 
 // Initialize static variables
 int Student::totalStudents = 0;
 int Student::totalQuizScores = 0;
 
-// Base class for Quiz
+// Class for Quiz functionality
 class Quiz
-{
-public:
-    virtual void generateQuestions() = 0;
-    virtual int evaluateAnswers() = 0;
-};
-
-class MultipleChoiceQuiz : public Quiz
 {
 private:
     vector<string> questions;
     vector<string> correctAnswers;
+    int score;
 
 public:
-    void generateQuestions() override
+    Quiz() : score(0) {}
+
+    void generateQuestions()
     {
         vector<pair<string, string>> questionPool = {
             {"What is the capital of France?", "paris"},
@@ -150,60 +186,68 @@ public:
         }
     }
 
-    int evaluateAnswers() override
+    void administerQuiz()
     {
-        int score = 0;
         string answer;
+        score = 0;
 
         for (size_t i = 0; i < questions.size(); ++i)
         {
-            cout << "\n"
-                 << questions[i] << endl;
+            cout << questions[i] << endl;
             cout << "Your answer: ";
             getline(cin, answer);
+
             if (toLowerCase(answer) == toLowerCase(correctAnswers[i]))
             {
                 score++;
             }
         }
-
-        int finalScore = score * 10;
-        cout << "\nYour final score is: " << finalScore << "/100" << endl;
-        return finalScore;
+        cout << "\nYou scored " << score << " out of " << questions.size() << " (" << (score * 20) << "%)." << endl;
     }
+
+    int getScore() const { return score * 10; }
 };
 
-// Class for managing Learning Paths
+// Class for Learning Path functionality
 class LearningPath
 {
 private:
-    vector<string> topics;
+    vector<Course *> courses;
 
 public:
     void generateLearningPath(float averageScore)
     {
+        courses.clear();
         if (averageScore < 50)
         {
-            topics = {"Basic Math", "Basic Geography", "Introduction to Science"};
+            courses.push_back(new Course("Basic Math", 6, "Basic"));
+            courses.push_back(new Course("Basic Geography", 6, "Basic"));
+            courses.push_back(new Course("Basic Science", 6, "Basic"));
         }
         else if (averageScore < 75)
         {
-            topics = {"Intermediate Math", "World Geography", "Introduction to Physics"};
+            courses.push_back(new Course("Intermediate Math", 8, "Intermediate"));
+            courses.push_back(new Course("World Geography", 8, "Intermediate"));
+            courses.push_back(new Course("Introduction to Physics", 8, "Intermediate"));
         }
         else
         {
-            topics = {"Advanced Math", "Advanced Geography", "Advanced Physics"};
+            courses.push_back(new Course("Advanced Math", 10, "Advanced"));
+            courses.push_back(new Course("Advanced Geography", 10, "Advanced"));
+            courses.push_back(new Course("Advanced Physics", 10, "Advanced"));
         }
     }
 
     void displayLearningPath() const
     {
-        cout << "\nYour learning path is:" << endl;
-        for (const string &topic : topics)
+        cout << "\nRecommended Learning Path:" << endl;
+        for (const Course *course : courses)
         {
-            cout << "- " << topic << endl;
+            course->displayCourseDetails();
         }
     }
+
+    vector<Course *> getCourses() const { return courses; }
 };
 
 // Class for providing Feedback
@@ -218,64 +262,72 @@ public:
         }
         else if (averageScore < 75)
         {
-            cout << "\nFeedback: Good progress, but there's room for improvement." << endl;
+            cout << "\nFeedback: You're doing well. Work on intermediate skills." << endl;
         }
         else
         {
-            cout << "\nFeedback: Excellent work! Ready for advanced challenges!" << endl;
+            cout << "\nFeedback: Excellent performance! Consider advanced topics." << endl;
         }
     }
 };
 
 int main()
 {
-    // Creating dynamic array of Student objects using 'new'
-    Student *students[3];
-    students[0] = new Student("John Doe", 15, "Visual");
-    students[1] = new Student("Jane Doe", 16, "Auditory");
-    students[2] = new Student("Alice Smith", 14, "Kinesthetic");
+    string studentName;
+    int studentAge;
+    string studentLearningStyle;
 
-    for (int i = 0; i < 3; ++i)
+    cout << "Enter student name: ";
+    getline(cin, studentName);
+
+    cout << "Enter student age: ";
+    cin >> studentAge;
+    cin.ignore();
+
+    cout << "Enter student learning style: ";
+    getline(cin, studentLearningStyle);
+
+    Student student;
+    student.setName(studentName);
+    student.setAge(studentAge);
+    student.setLearningStyle(studentLearningStyle);
+
+    Quiz quiz;
+    quiz.generateQuestions();
+    quiz.administerQuiz();
+    student.addQuizScore(quiz.getScore());
+
+    cout << "\nStudent Details:" << endl;
+    cout << "Name: " << student.getName() << ", Age: " << student.getAge()
+         << ", Learning Style: " << student.getLearningStyle() << endl;
+    cout << "Average Quiz Score: " << student.getAverageScore() << "%" << endl;
+
+    LearningPath learningPath;
+    learningPath.generateLearningPath(student.getAverageScore());
+    learningPath.displayLearningPath();
+
+    Feedback feedback;
+    feedback.provideFeedback(student.getAverageScore());
+
+    // Enroll student in recommended courses and display enrolled courses
+    for (Course *course : learningPath.getCourses())
     {
-        cout << "\nHi, I'm " << students[i]->getName() << ", a " << students[i]->getAge()
-             << "-year-old student who prefers " << students[i]->getLearningStyle() << " learning." << endl;
-        cout << "My initial learning path is: " << students[i]->getInitialLearningPath() << endl;
+        student.enrollInCourse(course);
     }
 
-    // Iterate over each student and generate quiz questions for each student
-    for (int i = 0; i < 3; ++i)
+    cout << "\nEnrolled Courses:" << endl;
+    for (Course *course : student.getEnrolledCourses())
     {
-        // Dynamically allocate quiz object and generate new set of questions
-        MultipleChoiceQuiz *quiz = new MultipleChoiceQuiz();
-        quiz->generateQuestions(); // Generate different questions for each student
-
-        cout << "\n-----------------------------------\n";
-        cout << "Evaluating quiz for " << students[i]->getName() << ":\n";
-        int score = quiz->evaluateAnswers();
-        students[i]->addQuizScore(score);
-
-        LearningPath *learningPath = new LearningPath();
-        learningPath->generateLearningPath(students[i]->getAverageScore());
-        learningPath->displayLearningPath();
-
-        Feedback *feedback = new Feedback();
-        feedback->provideFeedback(students[i]->getAverageScore());
-
-        delete learningPath;
-        delete feedback;
-        delete quiz;
-
-        cout << "\n-----------------------------------\n";
+        cout << "Course Name: " << course->getCourseName() << endl;
+        cout << "Course Duration: " << course->getCourseDuration() << " hours" << endl;
+        cout << "Course Difficulty: " << course->getCourseLevel() << endl;
+        cout << "--------------------------" << endl;
     }
 
-    // Display total students and total quiz scores using static member functions
-    cout << "\nTotal students: " << Student::getTotalStudents() << endl;
-    cout << "Total quiz scores of all students: " << Student::getTotalQuizScores() << endl;
-
-    // Clean up dynamic memory for students
-    for (int i = 0; i < 3; ++i)
+    // Clean up dynamically allocated memory
+    for (Course *course : learningPath.getCourses())
     {
-        delete students[i];
+        delete course;
     }
 
     return 0;
