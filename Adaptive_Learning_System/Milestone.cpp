@@ -7,7 +7,6 @@
 
 using namespace std;
 
-// Function to convert a string to lowercase for case-insensitive comparison
 string toLowerCase(const string &str)
 {
     string lowerStr = str;
@@ -15,30 +14,25 @@ string toLowerCase(const string &str)
     return lowerStr;
 }
 
-// Class representing a Course
 class Course
 {
 private:
     string courseName;
-    int courseDuration; // Duration in weeks
+    int courseDuration; 
     string courseLevel;
 
 public:
-    // Constructor
     Course(string name, int duration, string level)
         : courseName(name), courseDuration(duration), courseLevel(level) {}
 
-    // Getters
     string getCourseName() const { return courseName; }
     int getCourseDuration() const { return courseDuration; }
     string getCourseLevel() const { return courseLevel; }
 
-    // Setters
     void setCourseName(const string &name) { courseName = name; }
     void setCourseDuration(int duration) { courseDuration = duration; }
     void setCourseLevel(const string &level) { courseLevel = level; }
 
-    // Display course details
     void displayCourseDetails() const
     {
         cout << "Course: " << courseName << ", Duration: " << courseDuration
@@ -46,7 +40,6 @@ public:
     }
 };
 
-// Class representing a Student
 class Student
 {
 private:
@@ -54,24 +47,22 @@ private:
     int age;
     string learningStyle;
     vector<int> quizScores;
-    vector<Course *> enrolledCourses; // Vector of pointers to Course
+    vector<Course *> enrolledCourses; 
 
-    // Static variables to track the total number of students and total quiz scores
     static int totalStudents;
     static int totalQuizScores;
 
 public:
-    Student() : age(0) {} // Default constructor
+    Student() : age(0) {} 
 
     Student(string studentName, int studentAge, string studentLearningStyle)
     {
         setName(studentName);
         setAge(studentAge);
         setLearningStyle(studentLearningStyle);
-        totalStudents++; // Increment total students
+        totalStudents++;
     }
 
-    // Add quiz score and update total quiz scores
     Student &addQuizScore(int score)
     {
         quizScores.push_back(score);
@@ -79,26 +70,22 @@ public:
         return *this;
     }
 
-    // Enroll in a course (using pointers)
     Student &enrollInCourse(Course *course)
     {
         enrolledCourses.push_back(course);
         return *this;
     }
 
-    // Getters (Accessors)
     string getName() const { return name; }
     int getAge() const { return age; }
     string getLearningStyle() const { return learningStyle; }
     vector<int> getQuizScores() const { return quizScores; }
     vector<Course *> getEnrolledCourses() const { return enrolledCourses; }
 
-    // Setters
     void setName(const string &studentName) { name = studentName; }
     void setAge(int studentAge) { age = studentAge; }
     void setLearningStyle(const string &studentLearningStyle) { learningStyle = studentLearningStyle; }
 
-    // Calculate average score
     float getAverageScore() const
     {
         if (quizScores.empty())
@@ -111,7 +98,6 @@ public:
         return static_cast<float>(sum) / quizScores.size();
     }
 
-    // Display enrolled courses
     void displayEnrolledCourses() const
     {
         cout << "\nEnrolled Courses:" << endl;
@@ -128,16 +114,13 @@ public:
         }
     }
 
-    // Static function to return total number of students
     static int getTotalStudents() { return totalStudents; }
     static int getTotalQuizScores() { return totalQuizScores; }
 };
 
-// Initialize static variables
 int Student::totalStudents = 0;
 int Student::totalQuizScores = 0;
 
-// Class for Quiz functionality
 class Quiz
 {
 private:
@@ -173,12 +156,10 @@ public:
             {"What is the capital of Australia?", "canberra"},
             {"Which element has the chemical symbol 'O'?", "oxygen"}};
 
-        // Shuffle the question pool
-        unsigned seed = chrono::system_clock::now().time_since_epoch().count(); // Use current time as seed
+        unsigned seed = chrono::system_clock::now().time_since_epoch().count(); 
         mt19937 g(seed);
-        shuffle(questionPool.begin(), questionPool.end(), g); // Shuffle questions
+        shuffle(questionPool.begin(), questionPool.end(), g); 
 
-        // Select the first 10 questions and their correct answers
         for (size_t i = 0; i < 10 && i < questionPool.size(); ++i)
         {
             questions.push_back(questionPool[i].first);
@@ -208,7 +189,6 @@ public:
     int getScore() const { return score * 10; }
 };
 
-// Class for Learning Path functionality
 class LearningPath
 {
 private:
@@ -250,7 +230,6 @@ public:
     vector<Course *> getCourses() const { return courses; }
 };
 
-// Class for providing Feedback
 class Feedback
 {
 public:
@@ -289,7 +268,7 @@ int main()
 
     Student student;
     student.setName(studentName);
-    student.setAge(studentAge);
+    student.setAge(studentAge); 
     student.setLearningStyle(studentLearningStyle);
 
     Quiz quiz;
@@ -309,7 +288,6 @@ int main()
     Feedback feedback;
     feedback.provideFeedback(student.getAverageScore());
 
-    // Enroll student in recommended courses and display enrolled courses
     for (Course *course : learningPath.getCourses())
     {
         student.enrollInCourse(course);
@@ -324,7 +302,6 @@ int main()
         cout << "--------------------------" << endl;
     }
 
-    // Clean up dynamically allocated memory
     for (Course *course : learningPath.getCourses())
     {
         delete course;
