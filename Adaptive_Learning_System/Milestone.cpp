@@ -25,6 +25,11 @@ public:
     Course(string name, int duration, string level)
         : courseName(name), courseDuration(duration), courseLevel(level) {}
 
+    ~Course() // Destructor for Course class
+    {
+        
+    }
+
     string getCourseName() const { return courseName; }
     int getCourseDuration() const { return courseDuration; }
     string getCourseLevel() const { return courseLevel; }
@@ -61,6 +66,15 @@ public:
         setAge(studentAge);
         setLearningStyle(studentLearningStyle);
         totalStudents++;
+    }
+
+    ~Student() // Destructor for Student class
+    {
+        for (Course* course : enrolledCourses)
+        {
+            delete course; 
+        }
+        enrolledCourses.clear();
     }
 
     Student &addQuizScore(int score)
@@ -183,7 +197,7 @@ public:
                 score++;
             }
         }
-        cout << "\nYou scored " << score << " out of " << questions.size() << " (" << (score * 20) << "%)." << endl;
+        cout << "\nYou scored " << score << " out of " << questions.size() << " (" << (score * 10) << "%)." << endl;
     }
 
     int getScore() const { return score * 10; }
@@ -195,6 +209,15 @@ private:
     vector<Course *> courses;
 
 public:
+    ~LearningPath() // Destructor for LearningPath class
+    {
+        for (Course *course : courses)
+        {
+            delete course;
+        }
+        courses.clear();
+    }
+
     void generateLearningPath(float averageScore)
     {
         courses.clear();
@@ -290,22 +313,12 @@ int main()
 
     for (Course *course : learningPath.getCourses())
     {
-        student.enrollInCourse(course);
+        student.enrollInCourse(new Course(*course));
     }
 
-    cout << "\nEnrolled Courses:" << endl;
-    for (Course *course : student.getEnrolledCourses())
-    {
-        cout << "Course Name: " << course->getCourseName() << endl;
-        cout << "Course Duration: " << course->getCourseDuration() << " hours" << endl;
-        cout << "Course Difficulty: " << course->getCourseLevel() << endl;
-        cout << "--------------------------" << endl;
-    }
+    student.displayEnrolledCourses();
 
-    for (Course *course : learningPath.getCourses())
-    {
-        delete course;
-    }
+    cout << "\nTotal Students: " << Student::getTotalStudents() << endl;
 
     return 0;
 }
