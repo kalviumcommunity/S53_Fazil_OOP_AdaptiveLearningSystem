@@ -27,11 +27,8 @@ public:
 
     virtual ~Course() {}
 
-    virtual void displayCourseDetails() const
-    {
-        cout << "Course: " << courseName << ", Duration: " << courseDuration
-             << " weeks, Level: " << courseLevel << endl;
-    }
+    // Pure virtual function to make this an abstract class
+    virtual void displayCourseDetails() const = 0;
 };
 
 // Derived Classes
@@ -326,9 +323,10 @@ int main()
 
     for (Course *course : learningPath.getCourses())
     {
-        student.enrollInCourse(new Course(*course));
+        student.enrollInCourse(course);
     }
 
     student.displayEnrolledCourses();
+
     return 0;
 }
