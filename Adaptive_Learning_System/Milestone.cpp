@@ -16,32 +16,61 @@ string toLowerCase(const string &str)
 
 class Course
 {
-private:
+protected:
     string courseName;
-    int courseDuration; 
+    int courseDuration; // Duration in weeks
     string courseLevel;
 
 public:
     Course(string name, int duration, string level)
         : courseName(name), courseDuration(duration), courseLevel(level) {}
 
-    ~Course() // Destructor for Course class
-    {
-        
-    }
+    virtual ~Course() {}
 
-    string getCourseName() const { return courseName; }
-    int getCourseDuration() const { return courseDuration; }
-    string getCourseLevel() const { return courseLevel; }
-
-    void setCourseName(const string &name) { courseName = name; }
-    void setCourseDuration(int duration) { courseDuration = duration; }
-    void setCourseLevel(const string &level) { courseLevel = level; }
-
-    void displayCourseDetails() const
+    virtual void displayCourseDetails() const
     {
         cout << "Course: " << courseName << ", Duration: " << courseDuration
              << " weeks, Level: " << courseLevel << endl;
+    }
+};
+
+// Derived Classes
+class BasicCourse : public Course
+{
+public:
+    BasicCourse(string name, int duration)
+        : Course(name, duration, "Basic") {}
+
+    void displayCourseDetails() const override
+    {
+        cout << "Basic Course: " << courseName << ", Duration: " << courseDuration
+             << " weeks. Perfect for beginners!" << endl;
+    }
+};
+
+class IntermediateCourse : public Course
+{
+public:
+    IntermediateCourse(string name, int duration)
+        : Course(name, duration, "Intermediate") {}
+
+    void displayCourseDetails() const override
+    {
+        cout << "Intermediate Course: " << courseName << ", Duration: " << courseDuration
+             << " weeks. Build on your foundational knowledge!" << endl;
+    }
+};
+
+class AdvancedCourse : public Course
+{
+public:
+    AdvancedCourse(string name, int duration)
+        : Course(name, duration, "Advanced") {}
+
+    void displayCourseDetails() const override
+    {
+        cout << "Advanced Course: " << courseName << ", Duration: " << courseDuration
+             << " weeks. For experts aiming for mastery!" << endl;
     }
 };
 
@@ -52,27 +81,23 @@ private:
     int age;
     string learningStyle;
     vector<int> quizScores;
-    vector<Course *> enrolledCourses; 
-
-    static int totalStudents;
-    static int totalQuizScores;
+    vector<Course *> enrolledCourses;
 
 public:
-    Student() : age(0) {} 
+    Student() : age(0) {}
 
     Student(string studentName, int studentAge, string studentLearningStyle)
     {
         setName(studentName);
         setAge(studentAge);
         setLearningStyle(studentLearningStyle);
-        totalStudents++;
     }
 
-    ~Student() // Destructor for Student class
+    ~Student()
     {
-        for (Course* course : enrolledCourses)
+        for (Course *course : enrolledCourses)
         {
-            delete course; 
+            delete course;
         }
         enrolledCourses.clear();
     }
@@ -80,7 +105,6 @@ public:
     Student &addQuizScore(int score)
     {
         quizScores.push_back(score);
-        totalQuizScores += score;
         return *this;
     }
 
@@ -93,13 +117,6 @@ public:
     string getName() const { return name; }
     int getAge() const { return age; }
     string getLearningStyle() const { return learningStyle; }
-    vector<int> getQuizScores() const { return quizScores; }
-    vector<Course *> getEnrolledCourses() const { return enrolledCourses; }
-
-    void setName(const string &studentName) { name = studentName; }
-    void setAge(int studentAge) { age = studentAge; }
-    void setLearningStyle(const string &studentLearningStyle) { learningStyle = studentLearningStyle; }
-
     float getAverageScore() const
     {
         if (quizScores.empty())
@@ -123,18 +140,17 @@ public:
         {
             for (const Course *course : enrolledCourses)
             {
-                course->displayCourseDetails();
+                course->displayCourseDetails(); // Polymorphic behavior
             }
         }
     }
 
-    static int getTotalStudents() { return totalStudents; }
-    static int getTotalQuizScores() { return totalQuizScores; }
+    void setName(const string &studentName) { name = studentName; }
+    void setAge(int studentAge) { age = studentAge; }
+    void setLearningStyle(const string &studentLearningStyle) { learningStyle = studentLearningStyle; }
 };
 
-int Student::totalStudents = 0;
-int Student::totalQuizScores = 0;
-
+// Quiz Class
 class Quiz
 {
 private:
@@ -170,9 +186,9 @@ public:
             {"What is the capital of Australia?", "canberra"},
             {"Which element has the chemical symbol 'O'?", "oxygen"}};
 
-        unsigned seed = chrono::system_clock::now().time_since_epoch().count(); 
+        unsigned seed = chrono::system_clock::now().time_since_epoch().count();
         mt19937 g(seed);
-        shuffle(questionPool.begin(), questionPool.end(), g); 
+        shuffle(questionPool.begin(), questionPool.end(), g);
 
         for (size_t i = 0; i < 10 && i < questionPool.size(); ++i)
         {
@@ -209,7 +225,7 @@ private:
     vector<Course *> courses;
 
 public:
-    ~LearningPath() // Destructor for LearningPath class
+    ~LearningPath()
     {
         for (Course *course : courses)
         {
@@ -223,21 +239,18 @@ public:
         courses.clear();
         if (averageScore < 50)
         {
-            courses.push_back(new Course("Basic Math", 6, "Basic"));
-            courses.push_back(new Course("Basic Geography", 6, "Basic"));
-            courses.push_back(new Course("Basic Science", 6, "Basic"));
+            courses.push_back(new BasicCourse("Basic Math", 6));
+            courses.push_back(new BasicCourse("Basic Science", 6));
         }
         else if (averageScore < 75)
         {
-            courses.push_back(new Course("Intermediate Math", 8, "Intermediate"));
-            courses.push_back(new Course("World Geography", 8, "Intermediate"));
-            courses.push_back(new Course("Introduction to Physics", 8, "Intermediate"));
+            courses.push_back(new IntermediateCourse("Intermediate Math", 8));
+            courses.push_back(new IntermediateCourse("World Geography", 8));
         }
         else
         {
-            courses.push_back(new Course("Advanced Math", 10, "Advanced"));
-            courses.push_back(new Course("Advanced Geography", 10, "Advanced"));
-            courses.push_back(new Course("Advanced Physics", 10, "Advanced"));
+            courses.push_back(new AdvancedCourse("Advanced Math", 10));
+            courses.push_back(new AdvancedCourse("Advanced Physics", 10));
         }
     }
 
@@ -291,7 +304,7 @@ int main()
 
     Student student;
     student.setName(studentName);
-    student.setAge(studentAge); 
+    student.setAge(studentAge);
     student.setLearningStyle(studentLearningStyle);
 
     Quiz quiz;
@@ -317,8 +330,5 @@ int main()
     }
 
     student.displayEnrolledCourses();
-
-    cout << "\nTotal Students: " << Student::getTotalStudents() << endl;
-
     return 0;
 }
